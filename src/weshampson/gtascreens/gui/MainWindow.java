@@ -1,0 +1,366 @@
+
+package weshampson.gtascreens.gui;
+
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
+import javax.swing.KeyStroke;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import weshampson.commonutils.jar.JarProperties;
+import weshampson.commonutils.logging.Logger;
+import weshampson.gtascreens.screenshot.GameNotFoundException;
+import weshampson.gtascreens.screenshot.Screenshot;
+import weshampson.gtascreens.screenshot.ScreenshotOperations;
+
+/**
+ *
+ * @author  Wes Hampson
+ * @version 1.0.0 (Sep 6, 2014)
+ * @since   1.0.0 (Aug 28, 2014)
+ */
+public class MainWindow extends javax.swing.JFrame {
+    private final DefaultListModel<Screenshot> screenshotListModel = new DefaultListModel<>();
+    private final JPopupMenu screenshotListPopupMenu = new JPopupMenu();
+    private final String defaultDownloadLocation = System.getProperty("user.home") + "/Pictures/GTA Screenshots/";
+    public MainWindow() {
+        initComponents();
+        initComboBoxes();
+        initScreenshotList();
+        initKeyListener();
+        initPopupMenu();
+        setTitle(JarProperties.getApplicationTitle() + " " + JarProperties.getApplicationVersion());
+        downloadLocationTextField.setText(new File(defaultDownloadLocation).getAbsolutePath());
+    }
+    @SuppressWarnings("unchecked")
+    private void initComboBoxes() {
+        List<String> gameNameList = new ArrayList<>();
+        for (ScreenshotOperations.Game g : ScreenshotOperations.Game.values()) {
+            gameNameList.add(g.getGameName());
+        }
+        gameSelectionComboBox.setModel(new DefaultComboBoxModel(gameNameList.toArray()));
+        gameSelectionComboBoxActionPerformed(null);
+    }
+    @SuppressWarnings("unchecked")
+    private void initScreenshotList() {
+        ListSelectionListener listSelectionListener = new ListSelectionListener() {
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                int selectionLength = screenshotList.getSelectedIndices().length;
+                downloadButton.setText("Download " + selectionLength + " screenshots");
+                if (selectionLength != 0) {
+                    downloadButton.setEnabled(true);
+                } else {
+                    downloadButton.setEnabled(false);
+                }
+            }
+        };
+        screenshotList.setModel(screenshotListModel);
+        screenshotList.setCellRenderer(new ScreenshotCellRenderer());
+        screenshotList.addListSelectionListener(listSelectionListener);
+    }
+    private void initKeyListener() {
+        Action deleteAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (screenshotListModel.getSize() == 0) {
+                    return;
+                }
+                int[] selectedIndices = screenshotList.getSelectedIndices();
+                if (screenshotList.getSelectedIndices().length > 0) {
+                    for (int i = selectedIndices.length - 1; i > -1; i--) {
+                        screenshotListModel.removeElementAt(selectedIndices[i]);
+                    }
+                }
+                screenshotCountLabel.setText("Found " + screenshotListModel.size() + " screenshots");
+            }
+        };
+        screenshotList.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "deleteAction");
+        screenshotList.getActionMap().put("deleteAction", deleteAction);
+    }
+    private void initPopupMenu() {
+        JMenuItem openInBrowserItem = new JMenuItem("Open in Browser");
+        openInBrowserItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    Screenshot s = (Screenshot)screenshotList.getSelectedValue();
+                    Desktop.getDesktop().browse(s.getURL().toURI());
+                    Logger.log(Logger.Level.INFO, "Opened in browser: " + s.getURL());
+                } catch (IOException | URISyntaxException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+        });
+        screenshotListPopupMenu.add(openInBrowserItem);
+    } 
+
+    /** This method is called from within the constructor to
+     * initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is
+     * always regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        titleLabel = new javax.swing.JLabel();
+        descriptionLabel = new javax.swing.JLabel();
+        gameLabel = new javax.swing.JLabel();
+        gameSelectionComboBox = new javax.swing.JComboBox();
+        setLabel = new javax.swing.JLabel();
+        setSelectionComboBox = new javax.swing.JComboBox();
+        sceenshotScrollPane = new javax.swing.JScrollPane();
+        screenshotList = new javax.swing.JList();
+        screenshotCountLabel = new javax.swing.JLabel();
+        tipLabel = new javax.swing.JLabel();
+        searchButton = new javax.swing.JButton();
+        downloadLocationLabel = new javax.swing.JLabel();
+        downloadLocationTextField = new javax.swing.JTextField();
+        browseButton = new javax.swing.JButton();
+        downloadButton = new javax.swing.JButton();
+        menuBar = new javax.swing.JMenuBar();
+        helpMenu = new javax.swing.JMenu();
+        aboutMenuItem = new javax.swing.JMenuItem();
+
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
+
+        titleLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        titleLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        titleLabel.setText("GTAScreens");
+
+        descriptionLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        descriptionLabel.setText("Download GTA screenshots with ease.");
+
+        gameLabel.setText("Game:");
+
+        gameSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        gameSelectionComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                gameSelectionComboBoxActionPerformed(evt);
+            }
+        });
+
+        setLabel.setText("Set:");
+
+        setSelectionComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        screenshotList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                screenshotListMouseClicked(evt);
+            }
+        });
+        sceenshotScrollPane.setViewportView(screenshotList);
+
+        screenshotCountLabel.setText("Found 0 screenshots");
+
+        tipLabel.setText("Ctrl+A to select all");
+        tipLabel.setEnabled(false);
+
+        searchButton.setText("Search");
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchButtonActionPerformed(evt);
+            }
+        });
+
+        downloadLocationLabel.setText("Download location:");
+
+        browseButton.setText("...");
+        browseButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                browseButtonActionPerformed(evt);
+            }
+        });
+
+        downloadButton.setText("Download 0 Screenshots");
+        downloadButton.setEnabled(false);
+        downloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadButtonActionPerformed(evt);
+            }
+        });
+
+        helpMenu.setText("Help");
+
+        aboutMenuItem.setText("About");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                aboutMenuItemActionPerformed(evt);
+            }
+        });
+        helpMenu.add(aboutMenuItem);
+
+        menuBar.add(helpMenu);
+
+        setJMenuBar(menuBar);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(titleLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(descriptionLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(gameLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(gameSelectionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 180, Short.MAX_VALUE)
+                        .addComponent(setLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(setSelectionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(sceenshotScrollPane)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(downloadLocationLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(downloadLocationTextField)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(browseButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(downloadButton))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(screenshotCountLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(tipLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(searchButton)))
+                .addContainerGap())
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(titleLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(descriptionLabel)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(gameLabel)
+                    .addComponent(gameSelectionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(setLabel)
+                    .addComponent(setSelectionComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(sceenshotScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(searchButton)
+                    .addComponent(screenshotCountLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(tipLabel))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(downloadLocationLabel)
+                    .addComponent(downloadLocationTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(browseButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(downloadButton)
+                .addContainerGap())
+        );
+
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
+    
+    @SuppressWarnings("unchecked")
+    private void gameSelectionComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gameSelectionComboBoxActionPerformed
+        try {
+            List<String> sets = new ArrayList<>();
+            Map<String, String> urlMap = ScreenshotOperations.Game.getGameByName((String)gameSelectionComboBox.getSelectedItem()).getURLMap();
+            for (Map.Entry keyPair : urlMap.entrySet()) {
+                sets.add((String)keyPair.getKey());
+            }
+            Collections.sort(sets);
+            setSelectionComboBox.setModel(new DefaultComboBoxModel(sets.toArray()));
+        } catch (GameNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }//GEN-LAST:event_gameSelectionComboBoxActionPerformed
+
+    private void browseButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_browseButtonActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setMultiSelectionEnabled(false);
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int option = fileChooser.showOpenDialog(this);
+        if (option == JFileChooser.APPROVE_OPTION) {
+            downloadLocationTextField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+        }
+    }//GEN-LAST:event_browseButtonActionPerformed
+
+    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
+        try {
+            ScreenshotOperations.Game g = ScreenshotOperations.Game.getGameByName((String)gameSelectionComboBox.getSelectedItem());
+            String set = (String)setSelectionComboBox.getSelectedItem();
+            ScreenshotOperations screenshotOperations = new ScreenshotOperations(this, true);
+            List<Screenshot> screenshots = screenshotOperations.searchForScreenshots(g, set);
+            for (Screenshot s : screenshots) {
+                screenshotListModel.addElement(s);
+            }
+            screenshotCountLabel.setText("Found " + screenshotListModel.size() + " screenshots");
+        } catch (GameNotFoundException ex) {
+            throw new RuntimeException(ex);
+        }
+    }//GEN-LAST:event_searchButtonActionPerformed
+
+    private void screenshotListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_screenshotListMouseClicked
+        if (evt.getButton() == MouseEvent.BUTTON3 && !screenshotListModel.isEmpty()) {
+            screenshotList.setSelectedIndex(screenshotList.locationToIndex(evt.getPoint()));
+            screenshotListPopupMenu.show(screenshotList, evt.getX(), evt.getY());
+        }
+    }//GEN-LAST:event_screenshotListMouseClicked
+
+    private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
+        ScreenshotOperations screenshotOperations = new ScreenshotOperations(this, true);
+        List<Screenshot> screenshots = new ArrayList<>();
+        int[] selectedIndices = screenshotList.getSelectedIndices();
+        for (int i = 0; i < selectedIndices.length; i++) {
+            screenshots.add(screenshotListModel.get(selectedIndices[i]));
+        }
+        screenshotOperations.downloadScreenshots(screenshots, downloadLocationTextField.getText());
+    }//GEN-LAST:event_downloadButtonActionPerformed
+
+    private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
+        AboutDialog aboutDialog = new AboutDialog(this, true);
+        aboutDialog.setLocationRelativeTo(this);
+        aboutDialog.setVisible(true);
+    }//GEN-LAST:event_aboutMenuItemActionPerformed
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem aboutMenuItem;
+    private javax.swing.JButton browseButton;
+    private javax.swing.JLabel descriptionLabel;
+    private javax.swing.JButton downloadButton;
+    private javax.swing.JLabel downloadLocationLabel;
+    private javax.swing.JTextField downloadLocationTextField;
+    private javax.swing.JLabel gameLabel;
+    private javax.swing.JComboBox gameSelectionComboBox;
+    private javax.swing.JMenu helpMenu;
+    private javax.swing.JMenuBar menuBar;
+    private javax.swing.JScrollPane sceenshotScrollPane;
+    private javax.swing.JLabel screenshotCountLabel;
+    private javax.swing.JList screenshotList;
+    private javax.swing.JButton searchButton;
+    private javax.swing.JLabel setLabel;
+    private javax.swing.JComboBox setSelectionComboBox;
+    private javax.swing.JLabel tipLabel;
+    private javax.swing.JLabel titleLabel;
+    // End of variables declaration//GEN-END:variables
+}
